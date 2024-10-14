@@ -14,6 +14,8 @@ const SearchBar = () => {
       if (searchTerm) {
         const suggestions = await getSuggestions(searchTerm);
         setSuggestions(suggestions);
+      } else {
+        setSuggestions([]);
       }
     }, 500);
 
@@ -24,11 +26,13 @@ const SearchBar = () => {
     e.preventDefault();
     if (searchTerm) navigate(`/search/${searchTerm}`);
     setSearchTerm("");
+    setSuggestions([]);
   };
 
   const handleSuggestionClick = (suggestion) => {
     setSearchTerm(suggestion);
     navigate(`/search/${suggestion}`);
+    setSuggestions([]);
   };
 
   return (
@@ -49,10 +53,10 @@ const SearchBar = () => {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-      <IconButton type="submit" sx={{ p: "10px", color: "red" }}>
+      <IconButton type="submit" sx={{ p: "10px", color: "#2196F3" }}>
         <Search />
       </IconButton>
-      {suggestions.length > 0 && (
+      {suggestions.length > 0 && searchTerm !== "" ? (
         <ul
           style={{
             position: "absolute",
@@ -72,9 +76,8 @@ const SearchBar = () => {
             </li>
           ))}
         </ul>
-      )}
+      ) : null}
     </Paper>
   );
 };
-
 export default SearchBar;
