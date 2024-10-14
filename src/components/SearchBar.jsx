@@ -7,11 +7,12 @@ import getSuggestions from "../utils/suggestions";
 const SearchBar = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [selectedSuggestion, setSelectedSuggestion] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setTimeout(async () => {
-      if (searchTerm) {
+      if (searchTerm && searchTerm !== selectedSuggestion) {
         const suggestions = await getSuggestions(searchTerm);
         setSuggestions(suggestions);
       } else {
@@ -20,17 +21,20 @@ const SearchBar = () => {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchTerm]);
+  }, [searchTerm, selectedSuggestion]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (searchTerm) navigate(`/search/${searchTerm}`);
-    setSearchTerm("");
-    setSuggestions([]);
+    if (searchTerm) {
+      navigate(`/search/${searchTerm}`);
+      setSearchTerm("");
+      setSuggestions([]);
+    }
   };
 
   const handleSuggestionClick = (suggestion) => {
     setSearchTerm(suggestion);
+    setSelectedSuggestion(suggestion); // Update selectedSuggestion state
     navigate(`/search/${suggestion}`);
     setSuggestions([]);
   };
@@ -52,11 +56,18 @@ const SearchBar = () => {
         placeholder="Search..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            handleSubmit(e); // Handle Enter key
+          }
+        }}
       />
       <IconButton type="submit" sx={{ p: "10px", color: "#2196F3" }}>
         <Search />
       </IconButton>
-      {suggestions.length > 0 && searchTerm !== "" ? (
+      {suggestions.length > 0 &&
+      searchTerm !== "" &&
+      searchTerm !== selectedSuggestion ? (
         <ul
           style={{
             position: "absolute",
@@ -80,4 +91,5 @@ const SearchBar = () => {
     </Paper>
   );
 };
+
 export default SearchBar;
